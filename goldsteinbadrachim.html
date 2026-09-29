@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>גולדשטיין בדרכים</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #ffffff;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --accent:         #2a78d6;
+    --accent-2:       #eb6834;
+    --good:           #0ca30c;
+    --warn:           #fab219;
+    --critical:       #d03b3b;
+    --slot-1:         #2a78d6;
+    --slot-2:         #eb6834;
+    --slot-3:         #1baf7a;
+    --slot-4:         #eda100;
+    --slot-5:         #e87ba4;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --surface-2:      #232322;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.12);
+      --accent:         #3987e5;
+      --accent-2:       #d95926;
+      --good:           #0ca30c;
+      --warn:           #fab219;
+      --critical:       #e66767;
+      --slot-1:         #3987e5;
+      --slot-2:         #d95926;
+      --slot-3:         #199e70;
+      --slot-4:         #c98500;
+      --slot-5:         #d55181;
+    }
+  }
+  * { box-sizing: border-box; min-width: 0; }
+  html, body { margin: 0; padding: 0; overflow-x: hidden; }
+  body {
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh;
+    padding-bottom: 84px;
+  }
+  h1, h2, h3 { margin: 0 0 4px 0; font-weight: 700; }
+  p { margin: 0 0 8px 0; }
+  .app-header {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .app-header .title { font-size: 19px; font-weight: 800; display:flex; align-items:center; gap:8px; }
+  .app-header .subtitle { font-size: 12px; color: var(--text-secondary); margin-top:2px; }
+  .screen { display: none; max-width: 560px; margin: 0 auto; padding: 16px; }
+  .screen.active { display: block; }
+  .card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .btn {
+    display: inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family: inherit;
+    font-size: 16px; font-weight: 700;
+    padding: 14px 18px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+    width: 100%;
+    transition: transform .05s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  .btn.ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); font-weight:600; }
+  .btn.danger { background: var(--critical); }
+  .btn.small { width: auto; padding: 8px 14px; font-size: 14px; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .field { margin-bottom: 14px; }
+  .field label { display:block; font-size: 13px; font-weight:700; color: var(--text-secondary); margin-bottom: 6px; }
+  .field input[type=text], .field input[type=number], .field select {
+    width: 100%; padding: 12px 14px; font-size: 16px; font-family: inherit;
+    border-radius: var(--radius-md); border: 1.5px solid var(--border);
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .field .hint { font-size: 12px; color: var(--text-muted); margin-top:4px; }
+  .row { display:flex; gap:10px; }
+  .row > * { flex:1; }
+  .chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    padding: 10px 16px; border-radius: 999px; border: 1.5px solid var(--border);
+    background: var(--surface-1); font-size: 14px; font-weight:700; cursor:pointer;
+    color: var(--text-secondary); display:flex; align-items:center; gap:6px;
+    user-select:none;
+  }
+  .chip.active { border-color: transparent; color: white; }
+  .stepper { display:flex; align-items:center; gap:12px; justify-content:center; }
+  .stepper button {
+    width:44px; height:44px; border-radius:50%; border:1.5px solid var(--border);
+    background: var(--surface-1); font-size:20px; font-weight:800; color: var(--text-primary); cursor:pointer;
+  }
+  .stepper .val { font-size: 22px; font-weight:800; min-width: 34px; text-align:center; }
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+    background: var(--surface-1); border-top: 1px solid var(--border);
+    display:flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav button {
+    flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding: 8px 4px; color: var(--text-muted); font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; border-radius: 12px;
+  }
+  .bottom-nav button .ic { font-size: 20px; }
+  .bottom-nav button.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+  /* Car diagram */
+  .car-wrap { display:flex; justify-content:center; padding: 10px 0 6px; }
+  .car {
+    width: 100%; max-width: 340px;
+    background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+    border: 2px solid var(--border);
+    border-radius: 34px 34px 20px 20px;
+    padding: 18px 14px 22px;
+    position: relative;
+  }
+  .car .windshield {
+    height: 14px; margin: 0 24px 14px; border-radius: 10px;
+    background: var(--gridline);
+  }
+  .seat-row { display:flex; gap:8px; justify-content:center; margin-bottom: 10px; }
+  .seat-row.front { justify-content:center; }
+  .seat {
+    flex: 1; max-width: 100px; min-height: 84px;
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap: 2px; padding: 8px 4px; text-align:center;
+    background: var(--surface-1);
+  }
+  .seat.driver {
+    border-style: solid; background: repeating-linear-gradient(45deg, var(--gridline), var(--gridline) 4px, transparent 4px, transparent 8px);
+    color: var(--text-muted); font-size: 11px; font-weight:700;
+  }
+  .seat.filled { border-style: solid; }
+  .seat .emoji { font-size: 26px; line-height:1; }
+  .seat .name { font-size: 12px; font-weight:800; }
+  .seat .label { font-size: 10px; color: var(--text-muted); font-weight:600; }
+  .seat select { margin-top:4px; font-size: 11px; width: 92%; border-radius: 8px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); }
+  .car .rear-window { height: 10px; margin: 4px 40px 0; border-radius: 8px; background: var(--gridline); }
+
+  .phrase-banner {
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: var(--radius-md);
+    padding: 12px 14px; font-weight:700; text-align:center; font-size:15px;
+    margin-bottom: 12px;
+  }
+
+  /* Meters (dataviz) */
+  .meter-row { margin-bottom: 14px; }
+  .meter-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
+  .meter-head .who { display:flex; align-items:center; gap:6px; font-weight:800; font-size:14px; color: var(--text-primary); }
+  .meter-head .val { font-size: 13px; color: var(--text-secondary); font-weight:700; }
+  .meter-track { height: 14px; border-radius: 999px; background: var(--gridline); position:relative; overflow:hidden; }
+  .meter-fill { height: 100%; border-radius: 999px; }
+  .meter-sub { font-size: 11px; color: var(--text-muted); margin-top:4px; }
+
+  .swatch { width:14px; height:14px; border-radius:50%; display:inline-block; flex:none; }
+
+  .trip-item {
+    background: var(--surface-2); border:1px solid var(--border); border-radius: var(--radius-md);
+    padding: 12px 14px; margin-bottom:10px; cursor:pointer;
+  }
+  .trip-item .top { display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin-bottom:6px; }
+  .trip-item .who-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .mini-avatar { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:700; background: var(--surface-1); border:1px solid var(--border); border-radius:999px; padding:3px 8px; }
+
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing:.03em; color: var(--text-muted); font-weight:800; margin: 18px 0 8px; }
+  .section-title:first-child { margin-top: 0; }
+
+  .notice { background: color-mix(in srgb, var(--warn) 18%, var(--surface-2)); border:1px solid color-mix(in srgb, var(--warn) 45%, transparent); border-radius: var(--radius-md); padding: 10px 12px; font-size:13px; font-weight:700; margin-bottom:12px; }
+  .notice.info { background: color-mix(in srgb, var(--accent) 12%, var(--surface-2)); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+  .kid-editor-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .kid-editor-row input[type=text] { flex:1; }
+  .emoji-btn { width:44px; height:44px; border-radius:50%; border:1.5px solid var(--border); background:var(--surface-1); font-size:20px; cursor:pointer; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+  table.data-table { width:100%; min-width: 520px; border-collapse: collapse; font-size: 13px; }
+  table.data-table th, table.data-table td { padding: 8px 6px; text-align:center; border-bottom:1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+  table.data-table th { color: var(--text-muted); font-weight:700; font-size:11px; }
+
+  .empty-state { text-align:center; padding: 30px 10px; color: var(--text-secondary); }
+  .empty-state .big { font-size: 40px; margin-bottom:8px; }
+
+  .link-btn { background:none; border:none; color: var(--accent); font-weight:700; font-size:13px; cursor:pointer; padding:6px 0; font-family:inherit; }
+
+  .modal-overlay {
+    position: fixed; inset:0; background: rgba(0,0,0,0.45); z-index: 50;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .modal-sheet {
+    background: var(--page); width:100%; max-width: 560px; max-height: 88vh; overflow-y:auto;
+    border-radius: 22px 22px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+  .modal-sheet .drag { width:40px; height:5px; border-radius:3px; background: var(--baseline); margin: 0 auto 12px; }
+  .seg-block { border:1px solid var(--border); border-radius: var(--radius-md); padding:12px; margin-bottom:10px; background: var(--surface-2); }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <div class="title" id="header-title">🚗 גולדשטיין בדרכים</div>
+    <div class="subtitle" id="header-subtitle">מי יושב איפה — בהוגנות</div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="screen-onboarding">
+  <div class="card">
+    <h2>👋 בואו נכיר!</h2>
+    <p style="color:var(--text-secondary)">נגדיר כמה דברים לפני הנסיעה הראשונה. אפשר לשנות הכל בהמשך בהגדרות.</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>איך קוראים לאפליקציה?</label>
+      <input type="text" id="ob-app-name" value="גולדשטיין בדרכים">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>👦👧 הילדים שמשתתפים בסבב</h3>
+    <p class="hint" style="color:var(--text-muted); font-size:12px;">אפשר ללחוץ על העיגול כדי להחליף אימוג'י.</p>
+    <div id="ob-kids-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>🍼 תינוק ברכב?</h3>
+    <div class="field" style="margin-bottom:8px;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="ob-has-baby" checked style="width:18px;height:18px;">
+        <span>יש לנו גם תינוק עם כיסא בטיחות קבוע — נציין בכל נסיעה איפה הוא יושב (לא משתתף עדיין בסבב ההוגנות)</span>
+      </label>
+    </div>
+    <div class="field" id="ob-baby-name-wrap">
+      <label>שם התינוק</label>
+      <input type="text" id="ob-baby-name" value="התינוק">
+    </div>
+  </div>
+
+  <button class="btn" id="ob-finish-btn">בואו נתחיל! 🎉</button>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:44px;">🚙</div>
+    <h2 id="home-greeting">מוכנים לנסיעה?</h2>
+    <p style="color:var(--text-secondary)" id="home-sub">בכל נסיעה נבחר יחד מי יושב איפה — בצורה הוגנת ומאוזנת.</p>
+    <button class="btn" id="home-start-trip-btn" style="margin-top:8px;">🚀 התחלת נסיעה חדשה</button>
+  </div>
+
+  <div class="card" id="home-standings-card">
+    <h3>⚖️ מצב לוח הצדק</h3>
+    <div id="home-mini-meters"></div>
+    <button class="link-btn" data-nav="history">לצפייה מלאה בהיסטוריה ←</button>
+  </div>
+
+  <div class="card" id="home-last-trip-card" style="display:none;">
+    <h3>🕓 הנסיעה האחרונה</h3>
+    <div id="home-last-trip"></div>
+  </div>
+</div>
+
+<!-- WIZARD -->
+<div class="screen" id="screen-wizard">
+  <div class="card">
+    <h2>🧭 הגדרת הנסיעה</h2>
+    <p style="color:var(--text-secondary); font-size:14px;">מי נוסע היום, כמה צריכים לשבת מאחורה וכמה זמן הנסיעה.</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>מי משתתף בנסיעה?</label>
+      <div class="chip-row" id="wizard-participants"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field" style="margin-bottom:6px;">
+      <label>כמה ילדים צריכים לשבת מאחורה היום?</label>
+      <div class="stepper">
+        <button type="button" id="wizard-back-minus">−</button>
+        <div class="val" id="wizard-back-val">0</div>
+        <button type="button" id="wizard-back-plus">+</button>
+      </div>
+      <p class="hint" style="text-align:center;">תלוי כמה מבוגרים/נוסעים נוספים יש היום ברכב</p>
+    </div>
+  </div>
+
+  <div class="card" id="wizard-baby-card">
+    <div class="field">
+      <label id="wizard-baby-label">איפה יושב התינוק הפעם?</label>
+      <select id="wizard-baby-seat">
+        <option value="">— לא נוסע הפעם —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>אורך הנסיעה</label>
+      <div class="row">
+        <input type="number" id="wizard-duration" min="1" value="20" style="flex:2;">
+        <select id="wizard-duration-unit" style="flex:1;">
+          <option value="min">דקות</option>
+          <option value="hour">שעות</option>
+        </select>
+      </div>
+      <div class="chip-row" style="margin-top:8px;" id="wizard-duration-presets"></div>
+    </div>
+  </div>
+
+  <button class="btn" id="wizard-generate-btn">✨ קבעו מי יושב איפה</button>
+  <button class="btn ghost" data-nav="home" style="margin-top:8px;">ביטול</button>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="screen-result">
+  <div class="phrase-banner" id="result-phrase"></div>
+  <div class="card">
+    <div id="result-notice-slot"></div>
+    <div class="car-wrap">
+      <div class="car">
+        <div class="windshield"></div>
+        <div class="seat-row front">
+          <div class="seat" data-seat="front" id="result-seat-front"></div>
+          <div class="seat driver">🧑‍✈️<br>נהג/ת</div>
+        </div>
+        <div class="seat-row">
+          <div class="seat" data-seat="windowR" id="result-seat-windowR"></div>
+          <div class="seat" data-seat="middle" id="result-seat-middle"></div>
+          <div class="seat" data-seat="windowL" id="result-seat-windowL"></div>
+        </div>
+        <div class="seat-row">
+          <div class="seat" data-seat="backR" id="result-seat-backR"></div>
+          <div class="seat" data-seat="backL" id="result-seat-backL"></div>
+        </div>
+        <div class="rear-window"></div>
+      </div>
+    </div>
+    <p class="hint" style="text-align:center; margin-top:6px;">אפשר ללחוץ על כל מושב כדי להחליף ידנית (למשל מושב קדמי במקרה מיוחד)</p>
+  </div>
+  <button class="btn" id="result-save-btn">✅ שמירת הנסיעה</button>
+  <button class="btn secondary" id="result-reroll-btn" style="margin-top:8px;">🔄 הגרלה מחדש</button>
+  <button class="btn ghost" data-nav="home" style="margin-top:8px;">ביטול</button>
+</div>
+
+<!-- HISTORY -->
+<div class="screen" id="screen-history">
+  <div class="card">
+    <h2>⚖️ לוח הצדק</h2>
+    <div id="history-meters"></div>
+    <button class="link-btn" id="history-toggle-table">הצגת טבלה מפורטת</button>
+    <div id="history-table-wrap" style="display:none; margin-top:8px;"></div>
+  </div>
+
+  <div class="section-title">היסטוריית נסיעות</div>
+  <div id="history-trip-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="screen-settings">
+  <div class="card">
+    <h3>שם האפליקציה</h3>
+    <div class="field">
+      <input type="text" id="set-app-name">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>👦👧 ילדים בסבב</h3>
+    <div id="set-kids-list"></div>
+    <button class="link-btn" id="set-add-kid-btn">+ הוספת ילד/ה</button>
+  </div>
+
+  <div class="card">
+    <h3>🍼 התינוק</h3>
+    <div class="field" style="margin-bottom:8px;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="set-has-baby" style="width:18px;height:18px;">
+        <span>יש תינוק עם מושב קבוע (לא בסבב)</span>
+      </label>
+    </div>
+    <div class="field" id="set-baby-name-wrap">
+      <label>שם</label>
+      <input type="text" id="set-baby-name">
+    </div>
+    <div class="field" id="set-baby-rotation-wrap" style="margin-bottom:0;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="set-baby-in-rotation" style="width:18px;height:18px;">
+        <span>התינוק גדל ומצטרף לסבב ההוגנות הרגיל</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💺 ניקוד מושבים</h3>
+    <p class="hint" style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">ככל שהניקוד גבוה יותר — המושב נחשב מבוקש יותר, וזה מה שמאזן את לוח הצדק.</p>
+    <div id="set-seat-weights"></div>
+    <div class="field" style="margin-top:6px; margin-bottom:0;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="set-front-counts" style="width:18px;height:18px;">
+        <span>ישיבה מקדימה נספרת בלוח הצדק (מומלץ — כי זה מושב מבוקש ונדיר)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💾 גיבוי ושחזור נתונים</h3>
+    <p class="hint" style="color:var(--text-muted); font-size:12px;">האפליקציה שומרת הכל בטלפון עצמו. מומלץ מדי פעם לייצא גיבוי.</p>
+    <div class="row">
+      <button class="btn secondary" id="set-export-btn">⬇️ ייצוא גיבוי</button>
+      <button class="btn secondary" id="set-import-btn">⬆️ טעינת גיבוי</button>
+    </div>
+    <input type="file" id="set-import-file" accept="application/json" style="display:none;">
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--critical);">⚠️ איפוס</h3>
+    <button class="btn danger" id="set-reset-btn">איפוס כל הנתונים</button>
+  </div>
+</div>
+
+<div class="bottom-nav" id="bottom-nav">
+  <button data-nav="home"><span class="ic">🏠</span>בית</button>
+  <button data-nav="history"><span class="ic">⚖️</span>לוח צדק</button>
+  <button data-nav="settings"><span class="ic">⚙️</span>הגדרות</button>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var LS_KEY = "car_fairness_state_v2";
+
+  var KID_EMOJIS = ["🦁","🐯","🐨","🐰","🦊","🐼","🐸","🦄","🐵","🐻","🐷","🐢"];
+  var COLOR_SLOTS = ["var(--slot-1)","var(--slot-2)","var(--slot-3)","var(--slot-4)","var(--slot-5)"];
+
+  var SEAT_ORDER = ["front","windowR","middle","windowL","backR","backL"];
+  var SEAT_META = {
+    front:   { label: "קדימה",  short: "קדימה", rare: true, isBack:false },
+    windowR: { label: "חלון",   short: "חלון",  rare:false, isBack:false },
+    middle:  { label: "אמצע",   short: "אמצע",  rare:false, isBack:false },
+    windowL: { label: "חלון",   short: "חלון",  rare:false, isBack:false },
+    backR:   { label: "מאחור",  short: "מאחור", rare:false, isBack:true },
+    backL:   { label: "מאחור",  short: "מאחור", rare:false, isBack:true }
+  };
+
+  var PHRASES = {
+    intro: [
+      "בואו נראה מי זוכה במה היום! 🎲",
+      "לוח הצדק עובד... ⚖️",
+      "מחשבים את החלוקה הכי הוגנת! 🧮",
+      "רגע של מתח... מי יושב איפה? 👀"
+    ],
+    front: ["וואו!! מושב קדמי — זה ממש נדיר! 🎉🏆", "יום מזל מיוחד — קדימה!! 🌟"],
+    windowR: ["חלון פתוח לעולם! 🌤️", "מקום השקפה מספר 1! 👑", "נוף מהחלון בשבילך היום 🌳"],
+    windowL: ["חלון פתוח לעולם! 🌤️", "מקום השקפה מספר 1! 👑", "נוף מהחלון בשבילך היום 🌳"],
+    middle: ["מקום הקפטן/ית באמצע! 🚦", "מהמושב הזה רואים הכי טוב לכל הכיוונים! 🔭"],
+    back: ["התור שלך מאחורה היום — אבל את/ה אלוף/ת הוגנות! 🏅", "מאחורה זה גם כיף, מבטיחים! 🎈", "מקום ה-VIP השקט מאחור 🎧"],
+    emptyHistory: ["עוד לא נסעתם — הנסיעה הראשונה מחכה! 🚀"]
+  };
+
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function todayIso(){ return new Date().toISOString(); }
+  function fmtDate(iso){
+    var d = new Date(iso);
+    return d.toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"2-digit"}) + " " +
+           d.toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"});
+  }
+
+  // ---------- default state ----------
+  function defaultState(){
+    return {
+      version: 2,
+      appName: "גולדשטיין בדרכים",
+      onboarded: false,
+      children: [
+        {id: uid(), name:"", emoji: KID_EMOJIS[0], colorSlot:0, isBaby:false, inRotation:true},
+        {id: uid(), name:"", emoji: KID_EMOJIS[1], colorSlot:1, isBaby:false, inRotation:true},
+        {id: uid(), name:"", emoji: KID_EMOJIS[2], colorSlot:2, isBaby:false, inRotation:true},
+        {id: uid(), name:"", emoji: KID_EMOJIS[3], colorSlot:3, isBaby:false, inRotation:true}
+      ],
+      hasBaby: true,
+      babyChild: null, // filled on onboarding finish
+      seatWeights: { front:5, windowR:3, middle:2, windowL:3, backR:1, backL:1 },
+      frontCountsInScore: true,
+      trips: []
+    };
+  }
+
+  var state = loadState();
+
+  function loadState(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      var d = defaultState();
+      var merged = Object.assign(d, parsed);
+      // מיגרציה: עדכון שם ישן של התינוק לצורת זכר
+      (merged.children || []).forEach(function(c){
+        if (c && c.isBaby && (c.name === "התינוק/ת" || c.name === "תינוק/ת")) c.name = "התינוק";
+      });
+      return merged;
+    } catch(e){
+      console.error("load failed", e);
+      return defaultState();
+    }
+  }
+  function saveState(){
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }
+
+  function rotationChildren(){
+    return state.children.filter(function(c){ return !c.isBaby || c.inRotation; });
+  }
+  function findChild(id){
+    return state.children.filter(function(c){ return c.id===id; })[0] || null;
+  }
+  function childColor(c){
+    return COLOR_SLOTS[c.colorSlot % COLOR_SLOTS.length];
+  }
+
+  // ---------- fairness engine ----------
+  function overallAvgWeight(){
+    var vals = SEAT_ORDER.filter(function(s){return s!=="front";}).map(function(s){ return state.seatWeights[s]; });
+    var sum = vals.reduce(function(a,b){return a+b;},0);
+    return sum / vals.length;
+  }
+
+  // Returns stats per child id, computed fresh from trips history.
+  function computeStats(){
+    var stats = {};
+    state.children.forEach(function(c){
+      stats[c.id] = { totalWeightedMinutes:0, totalMinutes:0, tripsCount:0, lastBackDate:null, seatMinutes:{} };
+      SEAT_ORDER.forEach(function(s){ stats[c.id].seatMinutes[s]=0; });
+    });
+    var countedTripIds = {};
+    state.trips.forEach(function(trip){
+      var seenInThisTrip = {};
+      (trip.segments||[]).forEach(function(seg){
+        var minutes = seg.minutes || 0;
+        Object.keys(seg.assignments||{}).forEach(function(seatId){
+          var childId = seg.assignments[seatId];
+          if (!childId) return;
+          var st = stats[childId];
+          if (!st) return;
+          var w = state.seatWeights[seatId];
+          var countsThis = true;
+          if (seatId === "front" && !state.frontCountsInScore) countsThis = false;
+          if (countsThis){
+            st.totalWeightedMinutes += w * minutes;
+            st.totalMinutes += minutes;
+          }
+          st.seatMinutes[seatId] += minutes;
+          if (SEAT_META[seatId].isBack){
+            if (!st.lastBackDate || trip.date > st.lastBackDate) st.lastBackDate = trip.date;
+          }
+          seenInThisTrip[childId] = true;
+        });
+      });
+      Object.keys(seenInThisTrip).forEach(function(cid){
+        if (stats[cid]) stats[cid].tripsCount += 1;
+      });
+    });
+    var avgW = overallAvgWeight();
+    Object.keys(stats).forEach(function(cid){
+      var st = stats[cid];
+      st.avg = st.totalMinutes > 0 ? (st.totalWeightedMinutes / st.totalMinutes) : avgW;
+    });
+    return stats;
+  }
+
+  // Core assignment algorithm.
+  // participantIds: array of child ids riding this trip (excluding baby)
+  // backSeatsNeeded: 0/1/2 requested
+  // babySeatId: seat id occupied by baby, or null
+  // returns { assignments: {seatId:childId}, warnings: [string] }
+  function assignSeats(participantIds, backSeatsNeeded, babySeatId){
+    var stats = computeStats();
+    var warnings = [];
+    var available = SEAT_ORDER.filter(function(s){ return s !== "front" && s !== babySeatId; });
+    var backSeats = available.filter(function(s){ return SEAT_META[s].isBack; });
+    var nonBackSeats = available.filter(function(s){ return !SEAT_META[s].isBack; });
+
+    var actualBack = Math.min(backSeatsNeeded, backSeats.length, participantIds.length);
+    if (actualBack < backSeatsNeeded){
+      warnings.push("שימו לב: התבקשו " + backSeatsNeeded + " מקומות מאחור, אך יש רק " + backSeats.length + " פנויים היום (בגלל מושב התינוק או מספר הנוסעים). הותאם ל-" + actualBack + ".");
+    }
+
+    var pool = participantIds.slice();
+
+    function sortForBack(a,b){
+      var sa = stats[a], sb = stats[b];
+      if (sb.avg !== sa.avg) return sb.avg - sa.avg; // highest avg (had it best) goes back
+      var da = sa.lastBackDate || "0000";
+      var db = sb.lastBackDate || "0000";
+      return da < db ? -1 : (da > db ? 1 : 0); // oldest lastBackDate (longest time since) first
+    }
+    pool.sort(sortForBack);
+    var backAssignedIds = pool.slice(0, actualBack);
+    var remainingIds = pool.slice(actualBack);
+
+    function sortForGood(a,b){
+      var sa = stats[a], sb = stats[b];
+      if (sa.avg !== sb.avg) return sa.avg - sb.avg; // lowest avg (had it worst) gets best seat
+      return a < b ? -1 : 1;
+    }
+    remainingIds.sort(sortForGood);
+
+    var sortedNonBack = nonBackSeats.slice().sort(function(s1,s2){
+      return state.seatWeights[s2] - state.seatWeights[s1]; // best seat first
+    });
+
+    var assignments = {};
+    if (babySeatId) assignments[babySeatId] = "__BABY__";
+
+    var usedBack = backSeats.slice(0, actualBack);
+    backAssignedIds.forEach(function(cid, i){
+      assignments[usedBack[i]] = cid;
+    });
+
+    if (remainingIds.length > sortedNonBack.length){
+      warnings.push("אין מספיק מושבים רגילים לכל המשתתפים — יש להוסיף ידנית מישהו למושב הקדמי.");
+    }
+    remainingIds.forEach(function(cid, i){
+      if (i < sortedNonBack.length){
+        assignments[sortedNonBack[i]] = cid;
+      }
+    });
+
+    return { assignments: assignments, warnings: warnings };
+  }
+
+  // ---------- navigation ----------
+  var currentView = "home";
+  function showView(name){
+    currentView = name;
+    ["onboarding","home","wizard","result","history","settings"].forEach(function(v){
+      document.getElementById("screen-"+v).classList.toggle("active", v===name);
+    });
+    document.getElementById("bottom-nav").style.display = (name==="onboarding") ? "none" : "flex";
+    Array.prototype.forEach.call(document.querySelectorAll("#bottom-nav button"), function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-nav")===name);
+    });
+    if (name==="home") renderHome();
+    if (name==="history") renderHistory();
+    if (name==="settings") renderSettings();
+    if (name==="wizard") renderWizard();
+    window.scrollTo(0,0);
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-nav]"), function(el){
+    el.addEventListener("click", function(){ showView(el.getAttribute("data-nav")); });
+  });
+
+  // ---------- header ----------
+  function renderHeader(){
+    document.getElementById("header-title").textContent = "🚗 " + (state.appName || "האפליקציה שלנו");
+    document.title = state.appName || "גולדשטיין בדרכים";
+  }
+
+  // ---------- onboarding ----------
+  function renderOnboardingKids(){
+    var wrap = document.getElementById("ob-kids-list");
+    wrap.innerHTML = "";
+    state.children.forEach(function(c, idx){
+      var row = document.createElement("div");
+      row.className = "kid-editor-row";
+      row.innerHTML =
+        '<button type="button" class="emoji-btn" data-idx="'+idx+'" style="border-color:'+childColor(c)+';">'+c.emoji+'</button>' +
+        '<input type="text" data-idx="'+idx+'" placeholder="שם ילד/ה '+(idx+1)+'" value="'+(c.name||"")+'">';
+      wrap.appendChild(row);
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll("input[type=text]"), function(inp){
+      inp.addEventListener("input", function(){
+        state.children[+inp.getAttribute("data-idx")].name = inp.value;
+      });
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll(".emoji-btn"), function(btn){
+      btn.addEventListener("click", function(){
+        var idx = +btn.getAttribute("data-idx");
+        var c = state.children[idx];
+        var pos = KID_EMOJIS.indexOf(c.emoji);
+        c.emoji = KID_EMOJIS[(pos+1) % KID_EMOJIS.length];
+        renderOnboardingKids();
+      });
+    });
+  }
+
+  document.getElementById("ob-has-baby").addEventListener("change", function(e){
+    document.getElementById("ob-baby-name-wrap").style.display = e.target.checked ? "block" : "none";
+  });
+
+  document.getElementById("ob-finish-btn").addEventListener("click", function(){
+    state.appName = document.getElementById("ob-app-name").value.trim() || "האפליקציה שלנו";
+    state.children.forEach(function(c, idx){
+      if (!c.name || !c.name.trim()) c.name = "ילד/ה " + (idx+1);
+    });
+    state.hasBaby = document.getElementById("ob-has-baby").checked;
+    if (state.hasBaby){
+      var babyName = document.getElementById("ob-baby-name").value.trim() || "התינוק";
+      var baby = { id: uid(), name: babyName, emoji:"🍼", colorSlot:4, isBaby:true, inRotation:false };
+      state.children.push(baby);
+      state.babyChild = baby.id;
+    }
+    state.onboarded = true;
+    saveState();
+    renderHeader();
+    showView("home");
+  });
+
+  // ---------- home ----------
+  function renderHome(){
+    renderHeader();
+    var kids = rotationChildren().filter(function(c){return !c.isBaby;});
+    var greet = kids.length ? ("שלום, משפחת " + (state.appName.split(" ")[0]||"") + "! 👋") : "בואו נתחיל!";
+    document.getElementById("home-greeting").textContent = "מוכנים לנסיעה? 🚗";
+
+    var stats = computeStats();
+    var mm = document.getElementById("home-mini-meters");
+    mm.innerHTML = "";
+    if (kids.length === 0){
+      mm.innerHTML = '<div class="empty-state"><div class="big">🌱</div>עוד אין נתונים</div>';
+    } else {
+      renderMeters(mm, kids, stats, true);
+    }
+
+    var lastCard = document.getElementById("home-last-trip-card");
+    var lastTrip = state.trips[state.trips.length-1];
+    if (lastTrip){
+      lastCard.style.display = "block";
+      document.getElementById("home-last-trip").innerHTML = tripSummaryHtml(lastTrip);
+    } else {
+      lastCard.style.display = "none";
+    }
+  }
+
+  // ---------- meters (dataviz-style bar meters) ----------
+  function renderMeters(container, kids, stats, compact){
+    var maxW = Math.max.apply(null, SEAT_ORDER.filter(function(s){return s!=="front";}).map(function(s){return state.seatWeights[s];}));
+    var minW = Math.min.apply(null, SEAT_ORDER.filter(function(s){return s!=="front";}).map(function(s){return state.seatWeights[s];}));
+    var range = Math.max(0.0001, maxW-minW);
+    kids.forEach(function(c){
+      var st = stats[c.id] || {avg:0, tripsCount:0, totalMinutes:0};
+      var pct = Math.max(4, Math.min(100, ((st.avg - minW) / range) * 100));
+      var row = document.createElement("div");
+      row.className = "meter-row";
+      row.innerHTML =
+        '<div class="meter-head">' +
+          '<div class="who"><span class="swatch" style="background:'+childColor(c)+'"></span>'+c.emoji+' '+escapeHtml(c.name)+'</div>' +
+          '<div class="val">'+st.avg.toFixed(2)+'</div>' +
+        '</div>' +
+        '<div class="meter-track"><div class="meter-fill" style="width:'+pct+'%; background:'+childColor(c)+';"></div></div>' +
+        (compact ? '' : '<div class="meter-sub">'+st.tripsCount+' נסיעות · '+Math.round(st.totalMinutes)+' דקות בסה"כ</div>');
+      container.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  // ---------- wizard ----------
+  var wizardBackCount = 0;
+  function renderWizard(){
+    wizardBackCount = 0;
+    document.getElementById("wizard-back-val").textContent = "0";
+    var wrap = document.getElementById("wizard-participants");
+    wrap.innerHTML = "";
+    var kids = state.children.filter(function(c){ return !c.isBaby || c.inRotation; });
+    kids.forEach(function(c){
+      var chip = document.createElement("div");
+      chip.className = "chip active";
+      chip.style.background = childColor(c);
+      chip.style.color = "#fff";
+      chip.setAttribute("data-id", c.id);
+      chip.innerHTML = c.emoji + " " + escapeHtml(c.name);
+      chip.addEventListener("click", function(){
+        var active = chip.classList.toggle("active");
+        chip.style.background = active ? childColor(c) : "";
+        chip.style.color = active ? "#fff" : "";
+        refreshWizardBabySeatOptions();
+      });
+      wrap.appendChild(chip);
+    });
+
+    // baby card
+    var babyCard = document.getElementById("wizard-baby-card");
+    var baby = state.babyChild ? findChild(state.babyChild) : null;
+    if (baby && !baby.inRotation){
+      babyCard.style.display = "block";
+      document.getElementById("wizard-baby-label").textContent = "איפה יושב " + baby.name + " הפעם?";
+    } else {
+      babyCard.style.display = "none";
+    }
+    refreshWizardBabySeatOptions();
+    // ברירת מחדל: התינוק יושב ליד החלון בצד ימין
+    if (baby && !baby.inRotation){
+      document.getElementById("wizard-baby-seat").value = "windowR";
+    }
+
+    // duration presets
+    var presetsWrap = document.getElementById("wizard-duration-presets");
+    presetsWrap.innerHTML = "";
+    [5,10,20,30,45,60,90].forEach(function(m){
+      var chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = m + " ד'";
+      chip.addEventListener("click", function(){
+        document.getElementById("wizard-duration").value = m;
+        document.getElementById("wizard-duration-unit").value = "min";
+      });
+      presetsWrap.appendChild(chip);
+    });
+  }
+
+  function refreshWizardBabySeatOptions(){
+    var sel = document.getElementById("wizard-baby-seat");
+    var current = sel.value;
+    sel.innerHTML = '<option value="">— לא נוסע הפעם —</option>';
+    SEAT_ORDER.filter(function(s){return s!=="front";}).forEach(function(s){
+      var opt = document.createElement("option");
+      opt.value = s; opt.textContent = SEAT_META[s].label + (SEAT_META[s].isBack ? " (מאחור)" : "");
+      sel.appendChild(opt);
+    });
+    if ([...sel.options].some(function(o){return o.value===current;})) sel.value = current;
+  }
+
+  document.getElementById("wizard-back-minus").addEventListener("click", function(){
+    wizardBackCount = Math.max(0, wizardBackCount-1);
+    document.getElementById("wizard-back-val").textContent = wizardBackCount;
+  });
+  document.getElementById("wizard-back-plus").addEventListener("click", function(){
+    wizardBackCount = Math.min(2, wizardBackCount+1);
+    document.getElementById("wizard-back-val").textContent = wizardBackCount;
+  });
+
+  document.getElementById("home-start-trip-btn").addEventListener("click", function(){ showView("wizard"); });
+
+  var pendingTrip = null; // {participantIds, backSeatsNeeded, babySeatId, minutes, assignments}
+
+  document.getElementById("wizard-generate-btn").addEventListener("click", function(){
+    var participantIds = Array.prototype.map.call(
+      document.querySelectorAll("#wizard-participants .chip.active"),
+      function(el){ return el.getAttribute("data-id"); }
+    );
+    if (participantIds.length === 0){
+      alertNotice("צריך לבחור לפחות ילד/ה אחד/ת שנוסע/ת 🙂");
+      return;
+    }
+    var babySeatId = document.getElementById("wizard-baby-seat").value || null;
+    var durVal = parseFloat(document.getElementById("wizard-duration").value) || 0;
+    var unit = document.getElementById("wizard-duration-unit").value;
+    var minutes = unit === "hour" ? Math.round(durVal*60) : Math.round(durVal);
+    if (minutes <= 0){
+      alertNotice("צריך להזין אורך נסיעה גדול מאפס.");
+      return;
+    }
+
+    var res = assignSeats(participantIds, wizardBackCount, babySeatId);
+    pendingTrip = {
+      participantIds: participantIds,
+      backSeatsNeeded: wizardBackCount,
+      babySeatId: babySeatId,
+      minutes: minutes,
+      assignments: res.assignments,
+      warnings: res.warnings
+    };
+    renderResult();
+    showView("result");
+  });
+
+  document.getElementById("result-reroll-btn").addEventListener("click", function(){
+    if (!pendingTrip) return;
+    var res = assignSeats(pendingTrip.participantIds, pendingTrip.backSeatsNeeded, pendingTrip.babySeatId);
+    pendingTrip.assignments = res.assignments;
+    pendingTrip.warnings = res.warnings;
+    renderResult();
+  });
+
+  function alertNotice(msg){
+    var el = document.createElement("div");
+    el.className = "notice";
+    el.textContent = msg;
+    var host = document.querySelector(".screen.active .card") || document.querySelector(".screen.active");
+    host.insertBefore(el, host.firstChild);
+    setTimeout(function(){ el.remove(); }, 3500);
+  }
+
+  // ---------- result screen ----------
+  function renderResult(){
+    if (!pendingTrip) return;
+    document.getElementById("result-phrase").textContent = pick(PHRASES.intro);
+    var noticeSlot = document.getElementById("result-notice-slot");
+    noticeSlot.innerHTML = "";
+    pendingTrip.warnings.forEach(function(w){
+      var d = document.createElement("div");
+      d.className = "notice";
+      d.textContent = w;
+      noticeSlot.appendChild(d);
+    });
+
+    SEAT_ORDER.forEach(function(seatId){
+      var el = document.getElementById("result-seat-"+seatId);
+      var childId = pendingTrip.assignments[seatId];
+      el.className = "seat";
+      el.innerHTML = "";
+      var labelEl = document.createElement("div");
+      labelEl.className = "label";
+      labelEl.textContent = SEAT_META[seatId].label;
+
+      if (childId === "__BABY__"){
+        el.classList.add("filled");
+        var baby = findChild(state.babyChild);
+        el.innerHTML = '<div class="emoji">🍼</div><div class="name">'+escapeHtml(baby?baby.name:"תינוק")+'</div>';
+        el.appendChild(labelEl);
+      } else if (childId){
+        var c = findChild(childId);
+        el.classList.add("filled");
+        el.style.background = "color-mix(in srgb, " + childColor(c) + " 16%, var(--surface-1))";
+        el.style.borderColor = childColor(c);
+        el.innerHTML = '<div class="emoji">'+c.emoji+'</div><div class="name">'+escapeHtml(c.name)+'</div>';
+        el.appendChild(labelEl);
+      } else {
+        el.innerHTML = '<div style="font-size:20px;">➕</div>';
+        el.appendChild(labelEl);
+      }
+      addSeatOverrideControl(el, seatId);
+    });
+  }
+
+  function addSeatOverrideControl(seatEl, seatId){
+    var sel = document.createElement("select");
+    var noneOpt = document.createElement("option");
+    noneOpt.value = ""; noneOpt.textContent = "ריק";
+    sel.appendChild(noneOpt);
+    if (state.hasBaby){
+      var babyOpt = document.createElement("option");
+      babyOpt.value = "__BABY__";
+      babyOpt.textContent = "🍼 " + (findChild(state.babyChild)? findChild(state.babyChild).name : "תינוק");
+      sel.appendChild(babyOpt);
+    }
+    pendingTrip.participantIds.forEach(function(cid){
+      var c = findChild(cid);
+      var opt = document.createElement("option");
+      opt.value = cid;
+      opt.textContent = c.emoji + " " + c.name;
+      sel.appendChild(opt);
+    });
+    var currentVal = pendingTrip.assignments[seatId] || "";
+    sel.value = currentVal;
+    sel.addEventListener("click", function(e){ e.stopPropagation(); });
+    sel.addEventListener("change", function(){
+      // clear this value from any other seat first (avoid duplicate placement)
+      Object.keys(pendingTrip.assignments).forEach(function(sid){
+        if (pendingTrip.assignments[sid] === sel.value && sel.value !== "") delete pendingTrip.assignments[sid];
+      });
+      if (sel.value) pendingTrip.assignments[seatId] = sel.value;
+      else delete pendingTrip.assignments[seatId];
+      renderResult();
+    });
+    seatEl.appendChild(sel);
+  }
+
+  document.getElementById("result-save-btn").addEventListener("click", function(){
+    if (!pendingTrip) return;
+    var trip = {
+      id: uid(),
+      date: todayIso(),
+      segments: [{
+        minutes: pendingTrip.minutes,
+        backSeatsNeeded: pendingTrip.backSeatsNeeded,
+        babySeatId: pendingTrip.babySeatId,
+        assignments: Object.assign({}, pendingTrip.assignments)
+      }]
+    };
+    state.trips.push(trip);
+    saveState();
+    pendingTrip = null;
+    showView("home");
+  });
+
+  // ---------- trip summary / history ----------
+  function tripSegAssignedKids(seg){
+    return Object.keys(seg.assignments||{}).map(function(seatId){
+      return { seatId: seatId, childId: seg.assignments[seatId] };
+    }).filter(function(x){ return x.childId; });
+  }
+
+  function tripSummaryHtml(trip){
+    var totalMin = (trip.segments||[]).reduce(function(a,s){return a+(s.minutes||0);},0);
+    var kidsSeen = {};
+    (trip.segments||[]).forEach(function(seg){
+      tripSegAssignedKids(seg).forEach(function(x){ kidsSeen[x.childId]=true; });
+    });
+    var chips = Object.keys(kidsSeen).map(function(cid){
+      if (cid === "__BABY__"){
+        var baby = findChild(state.babyChild);
+        return '<div class="mini-avatar">🍼 '+escapeHtml(baby?baby.name:"")+'</div>';
+      }
+      var c = findChild(cid);
+      if (!c) return "";
+      return '<div class="mini-avatar"><span class="swatch" style="background:'+childColor(c)+'"></span>'+c.emoji+' '+escapeHtml(c.name)+'</div>';
+    }).join("");
+    return '<div class="top"><span>'+fmtDate(trip.date)+'</span><span>'+totalMin+' דקות'+((trip.segments||[]).length>1?(" · "+trip.segments.length+" קטעים"):"")+'</span></div>' +
+           '<div class="who-list">'+chips+'</div>';
+  }
+
+  function renderHistory(){
+    var stats = computeStats();
+    var kids = state.children.filter(function(c){ return !c.isBaby || c.inRotation; });
+    var mWrap = document.getElementById("history-meters");
+    mWrap.innerHTML = "";
+    if (kids.length===0 || state.trips.length===0){
+      mWrap.innerHTML = '<div class="empty-state"><div class="big">🚗</div>'+pick(PHRASES.emptyHistory)+'</div>';
+    } else {
+      renderMeters(mWrap, kids, stats, false);
+    }
+
+    var tableWrap = document.getElementById("history-table-wrap");
+    tableWrap.innerHTML = buildStatsTable(kids, stats);
+
+    var list = document.getElementById("history-trip-list");
+    list.innerHTML = "";
+    if (state.trips.length === 0){
+      list.innerHTML = '<div class="empty-state"><div class="big">🗒️</div>אין עדיין נסיעות שמורות</div>';
+      return;
+    }
+    state.trips.slice().reverse().forEach(function(trip){
+      var item = document.createElement("div");
+      item.className = "trip-item";
+      item.innerHTML = tripSummaryHtml(trip);
+      item.addEventListener("click", function(){ openTripEditor(trip.id); });
+      list.appendChild(item);
+    });
+  }
+
+  function buildStatsTable(kids, stats){
+    var seatCols = SEAT_ORDER;
+    var html = '<table class="data-table"><thead><tr><th>ילד/ה</th>';
+    seatCols.forEach(function(s){ html += "<th>"+SEAT_META[s].short+"</th>"; });
+    html += "<th>נסיעות</th><th>סה\"כ דק'</th><th>ממוצע</th></tr></thead><tbody>";
+    kids.forEach(function(c){
+      var st = stats[c.id];
+      html += "<tr><td>"+c.emoji+" "+escapeHtml(c.name)+"</td>";
+      seatCols.forEach(function(s){ html += "<td>"+Math.round(st.seatMinutes[s])+"</td>"; });
+      html += "<td>"+st.tripsCount+"</td><td>"+Math.round(st.totalMinutes)+"</td><td>"+st.avg.toFixed(2)+"</td></tr>";
+    });
+    html += "</tbody></table>";
+    return '<div class="table-scroll">' + html + '</div>';
+  }
+
+  document.getElementById("history-toggle-table").addEventListener("click", function(){
+    var w = document.getElementById("history-table-wrap");
+    w.style.display = (w.style.display === "none") ? "block" : "none";
+  });
+
+  // ---------- trip editor (edit / split / delete) ----------
+  function openTripEditor(tripId){
+    var trip = state.trips.filter(function(t){return t.id===tripId;})[0];
+    if (!trip) return;
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.addEventListener("click", function(e){ if (e.target===overlay) closeModal(); });
+    var sheet = document.createElement("div");
+    sheet.className = "modal-sheet";
+    sheet.innerHTML = '<div class="drag"></div><h2>עריכת נסיעה</h2><p class="hint">'+fmtDate(trip.date)+'</p><div id="editor-segments"></div>' +
+      '<button class="link-btn" id="editor-add-split">✂️ פיצול הקטע האחרון לשני חלקים</button>' +
+      '<div style="height:10px"></div>' +
+      '<button class="btn" id="editor-save">שמירת שינויים</button>' +
+      '<button class="btn danger" id="editor-delete" style="margin-top:8px;">מחיקת הנסיעה</button>' +
+      '<button class="btn ghost" id="editor-close" style="margin-top:8px;">סגירה</button>';
+    overlay.appendChild(sheet);
+    document.getElementById("modal-root").appendChild(overlay);
+
+    var workingSegs = JSON.parse(JSON.stringify(trip.segments||[]));
+    var allKidIds = state.children.map(function(c){return c.id;});
+
+    function renderSegs(){
+      var host = document.getElementById("editor-segments");
+      host.innerHTML = "";
+      workingSegs.forEach(function(seg, segIdx){
+        var block = document.createElement("div");
+        block.className = "seg-block";
+        var title = workingSegs.length>1 ? ("קטע "+(segIdx+1)) : "פרטי הנסיעה";
+        var html = '<h3 style="font-size:14px; margin-bottom:8px;">'+title+'</h3>';
+        html += '<div class="field"><label>דקות</label><input type="number" min="1" data-seg="'+segIdx+'" class="seg-minutes" value="'+seg.minutes+'"></div>';
+        html += '<div class="field"><label>תינוק יושב ב:</label><select data-seg="'+segIdx+'" class="seg-babyseat"><option value="">—</option>';
+        SEAT_ORDER.filter(function(s){return s!=="front";}).forEach(function(s){
+          html += '<option value="'+s+'" '+(seg.babySeatId===s?"selected":"")+'>'+SEAT_META[s].label+'</option>';
+        });
+        html += '</select></div>';
+        html += '<div class="field" style="margin-bottom:0;"><label>הקצאת מושבים</label>';
+        SEAT_ORDER.forEach(function(seatId){
+          html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
+            '<div style="width:56px; font-size:12px; color:var(--text-secondary);">'+SEAT_META[seatId].label+'</div>' +
+            '<select data-seg="'+segIdx+'" data-seat="'+seatId+'" class="seg-seat" style="flex:1;">';
+          html += '<option value="">ריק</option>';
+          html += '<option value="__BABY__" '+(seg.assignments[seatId]==="__BABY__"?"selected":"")+'>🍼 תינוק</option>';
+          allKidIds.forEach(function(cid){
+            var c = findChild(cid);
+            if (c.isBaby) return;
+            html += '<option value="'+cid+'" '+(seg.assignments[seatId]===cid?"selected":"")+'>'+c.emoji+' '+escapeHtml(c.name)+'</option>';
+          });
+          html += '</select></div>';
+        });
+        html += '</div>';
+        block.innerHTML = html;
+        host.appendChild(block);
+      });
+
+      Array.prototype.forEach.call(host.querySelectorAll(".seg-minutes"), function(inp){
+        inp.addEventListener("input", function(){
+          workingSegs[+inp.getAttribute("data-seg")].minutes = parseFloat(inp.value)||0;
+        });
+      });
+      Array.prototype.forEach.call(host.querySelectorAll(".seg-babyseat"), function(sel){
+        sel.addEventListener("change", function(){
+          workingSegs[+sel.getAttribute("data-seg")].babySeatId = sel.value || null;
+        });
+      });
+      Array.prototype.forEach.call(host.querySelectorAll(".seg-seat"), function(sel){
+        sel.addEventListener("change", function(){
+          var segIdx = +sel.getAttribute("data-seg");
+          var seatId = sel.getAttribute("data-seat");
+          if (sel.value) workingSegs[segIdx].assignments[seatId] = sel.value;
+          else delete workingSegs[segIdx].assignments[seatId];
+        });
+      });
+    }
+    renderSegs();
+
+    document.getElementById("editor-add-split").addEventListener("click", function(){
+      var last = workingSegs[workingSegs.length-1];
+      var half = Math.max(1, Math.round((last.minutes||0)/2));
+      last.minutes = half;
+      var clone = JSON.parse(JSON.stringify(last));
+      clone.minutes = Math.max(1, (last.minutes||0)); // same seats by default, editable after
+      workingSegs.push(clone);
+      renderSegs();
+    });
+
+    document.getElementById("editor-save").addEventListener("click", function(){
+      trip.segments = workingSegs;
+      saveState();
+      closeModal();
+      renderHistory();
+    });
+    document.getElementById("editor-delete").addEventListener("click", function(){
+      state.trips = state.trips.filter(function(t){return t.id!==tripId;});
+      saveState();
+      closeModal();
+      renderHistory();
+    });
+    document.getElementById("editor-close").addEventListener("click", closeModal);
+
+    function closeModal(){ document.getElementById("modal-root").innerHTML = ""; }
+  }
+
+  // ---------- settings ----------
+  function renderSettings(){
+    document.getElementById("set-app-name").value = state.appName;
+    var kidsList = document.getElementById("set-kids-list");
+    kidsList.innerHTML = "";
+    state.children.filter(function(c){return !c.isBaby;}).forEach(function(c){
+      var idx = state.children.indexOf(c);
+      var row = document.createElement("div");
+      row.className = "kid-editor-row";
+      row.innerHTML =
+        '<button type="button" class="emoji-btn" data-idx="'+idx+'" style="border-color:'+childColor(c)+';">'+c.emoji+'</button>' +
+        '<input type="text" data-idx="'+idx+'" value="'+escapeHtml(c.name)+'">' +
+        '<button type="button" class="link-btn" data-remove="'+idx+'">🗑️</button>';
+      kidsList.appendChild(row);
+    });
+    Array.prototype.forEach.call(kidsList.querySelectorAll("input[type=text]"), function(inp){
+      inp.addEventListener("input", function(){
+        state.children[+inp.getAttribute("data-idx")].name = inp.value;
+      });
+    });
+    Array.prototype.forEach.call(kidsList.querySelectorAll(".emoji-btn"), function(btn){
+      btn.addEventListener("click", function(){
+        var idx = +btn.getAttribute("data-idx");
+        var c = state.children[idx];
+        c.emoji = KID_EMOJIS[(KID_EMOJIS.indexOf(c.emoji)+1) % KID_EMOJIS.length];
+        renderSettings();
+      });
+    });
+    Array.prototype.forEach.call(kidsList.querySelectorAll("[data-remove]"), function(btn){
+      btn.addEventListener("click", function(){
+        if (!confirm("להסיר את הילד/ה מהרשימה? ההיסטוריה תישאר שמורה.")) return;
+        var idx = +btn.getAttribute("data-remove");
+        state.children.splice(idx,1);
+        renderSettings();
+      });
+    });
+
+    var baby = state.babyChild ? findChild(state.babyChild) : null;
+    document.getElementById("set-has-baby").checked = !!state.hasBaby;
+    document.getElementById("set-baby-name").value = baby ? baby.name : "התינוק";
+    document.getElementById("set-baby-in-rotation").checked = baby ? !!baby.inRotation : false;
+    document.getElementById("set-baby-name-wrap").style.display = state.hasBaby ? "block" : "none";
+    document.getElementById("set-baby-rotation-wrap").style.display = state.hasBaby ? "block" : "none";
+
+    var wWrap = document.getElementById("set-seat-weights");
+    wWrap.innerHTML = "";
+    SEAT_ORDER.forEach(function(seatId){
+      var row = document.createElement("div");
+      row.className = "field";
+      row.style.marginBottom = "8px";
+      row.innerHTML = '<label>'+SEAT_META[seatId].label+(SEAT_META[seatId].rare?" (נדיר)":"")+'</label>' +
+        '<input type="number" min="0" max="10" data-seat="'+seatId+'" value="'+state.seatWeights[seatId]+'">';
+      wWrap.appendChild(row);
+    });
+    Array.prototype.forEach.call(wWrap.querySelectorAll("input"), function(inp){
+      inp.addEventListener("input", function(){
+        state.seatWeights[inp.getAttribute("data-seat")] = parseFloat(inp.value)||0;
+      });
+    });
+    document.getElementById("set-front-counts").checked = !!state.frontCountsInScore;
+  }
+
+  document.getElementById("set-app-name").addEventListener("input", function(e){
+    state.appName = e.target.value;
+    renderHeader();
+  });
+  document.getElementById("set-add-kid-btn").addEventListener("click", function(){
+    state.children.push({id: uid(), name:"ילד/ה חדש/ה", emoji: pick(KID_EMOJIS), colorSlot: state.children.length % COLOR_SLOTS.length, isBaby:false, inRotation:true});
+    renderSettings();
+  });
+  document.getElementById("set-has-baby").addEventListener("change", function(e){
+    state.hasBaby = e.target.checked;
+    if (state.hasBaby && !state.babyChild){
+      var baby = {id: uid(), name:"התינוק", emoji:"🍼", colorSlot:4, isBaby:true, inRotation:false};
+      state.children.push(baby);
+      state.babyChild = baby.id;
+    }
+    renderSettings();
+  });
+  document.getElementById("set-baby-name").addEventListener("input", function(e){
+    var baby = state.babyChild ? findChild(state.babyChild) : null;
+    if (baby) baby.name = e.target.value;
+  });
+  document.getElementById("set-baby-in-rotation").addEventListener("change", function(e){
+    var baby = state.babyChild ? findChild(state.babyChild) : null;
+    if (baby) baby.inRotation = e.target.checked;
+  });
+  document.getElementById("set-front-counts").addEventListener("change", function(e){
+    state.frontCountsInScore = e.target.checked;
+  });
+
+  document.getElementById("set-export-btn").addEventListener("click", function(){
+    saveState();
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = (state.appName||"car-fairness").replace(/\s+/g,"-") + "-גיבוי-" + new Date().toISOString().slice(0,10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("set-import-btn").addEventListener("click", function(){
+    document.getElementById("set-import-file").click();
+  });
+  document.getElementById("set-import-file").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var parsed = JSON.parse(reader.result);
+        if (!confirm("לטעון את הגיבוי? זה יחליף את הנתונים הנוכחיים.")) return;
+        state = Object.assign(defaultState(), parsed);
+        saveState();
+        renderHeader();
+        showView("home");
+        alert("הגיבוי נטען בהצלחה!");
+      } catch(err){
+        alert("קובץ לא תקין: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+  document.getElementById("set-reset-btn").addEventListener("click", function(){
+    if (!confirm("למחוק את כל הנתונים (ילדים, היסטוריה, הגדרות)? פעולה זו בלתי הפיכה.")) return;
+    if (!confirm("בטוח/ה לגמרי?")) return;
+    localStorage.removeItem(LS_KEY);
+    state = defaultState();
+    showView("onboarding");
+    renderOnboardingKids();
+  });
+
+  // ---------- boot ----------
+  function boot(){
+    renderHeader();
+    if (!state.onboarded){
+      renderOnboardingKids();
+      showView("onboarding");
+    } else {
+      showView("home");
+    }
+  }
+  boot();
+
+})();
+</script>
+</body>
+</html>
