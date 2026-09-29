@@ -264,16 +264,16 @@
   </div>
 
   <div class="card">
-    <h3>🍼 תינוק/ת ברכב?</h3>
+    <h3>🍼 תינוק ברכב?</h3>
     <div class="field" style="margin-bottom:8px;">
       <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
         <input type="checkbox" id="ob-has-baby" checked style="width:18px;height:18px;">
-        <span>יש לנו גם תינוק/ת עם כיסא בטיחות קבוע — נציין בכל נסיעה איפה הוא/היא יושב/ת (לא משתתפ/ת עדיין בסבב ההוגנות)</span>
+        <span>יש לנו גם תינוק עם כיסא בטיחות קבוע — נציין בכל נסיעה איפה הוא יושב (לא משתתף עדיין בסבב ההוגנות)</span>
       </label>
     </div>
     <div class="field" id="ob-baby-name-wrap">
-      <label>שם התינוק/ת</label>
-      <input type="text" id="ob-baby-name" value="התינוק/ת">
+      <label>שם התינוק</label>
+      <input type="text" id="ob-baby-name" value="התינוק">
     </div>
   </div>
 
@@ -329,9 +329,9 @@
 
   <div class="card" id="wizard-baby-card">
     <div class="field">
-      <label id="wizard-baby-label">איפה יושב/ת התינוק/ת הפעם?</label>
+      <label id="wizard-baby-label">איפה יושב התינוק הפעם?</label>
       <select id="wizard-baby-seat">
-        <option value="">— לא נוסע/ת הפעם —</option>
+        <option value="">— לא נוסע הפעם —</option>
       </select>
     </div>
   </div>
@@ -414,11 +414,11 @@
   </div>
 
   <div class="card">
-    <h3>🍼 התינוק/ת</h3>
+    <h3>🍼 התינוק</h3>
     <div class="field" style="margin-bottom:8px;">
       <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
         <input type="checkbox" id="set-has-baby" style="width:18px;height:18px;">
-        <span>יש תינוק/ת עם מושב קבוע (לא בסבב)</span>
+        <span>יש תינוק עם מושב קבוע (לא בסבב)</span>
       </label>
     </div>
     <div class="field" id="set-baby-name-wrap">
@@ -428,7 +428,7 @@
     <div class="field" id="set-baby-rotation-wrap" style="margin-bottom:0;">
       <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
         <input type="checkbox" id="set-baby-in-rotation" style="width:18px;height:18px;">
-        <span>התינוק/ת גדל/ה ומצטרף/ת לסבב ההוגנות הרגיל</span>
+        <span>התינוק גדל ומצטרף לסבב ההוגנות הרגיל</span>
       </label>
     </div>
   </div>
@@ -540,7 +540,12 @@
       if (!raw) return defaultState();
       var parsed = JSON.parse(raw);
       var d = defaultState();
-      return Object.assign(d, parsed);
+      var merged = Object.assign(d, parsed);
+      // מיגרציה: עדכון שם ישן של התינוק לצורת זכר
+      (merged.children || []).forEach(function(c){
+        if (c && c.isBaby && (c.name === "התינוק/ת" || c.name === "תינוק/ת")) c.name = "התינוק";
+      });
+      return merged;
     } catch(e){
       console.error("load failed", e);
       return defaultState();
@@ -624,7 +629,7 @@
 
     var actualBack = Math.min(backSeatsNeeded, backSeats.length, participantIds.length);
     if (actualBack < backSeatsNeeded){
-      warnings.push("שימו לב: התבקשו " + backSeatsNeeded + " מקומות מאחור, אך יש רק " + backSeats.length + " פנויים היום (בגלל מושב התינוק/ת או מספר הנוסעים). הותאם ל-" + actualBack + ".");
+      warnings.push("שימו לב: התבקשו " + backSeatsNeeded + " מקומות מאחור, אך יש רק " + backSeats.length + " פנויים היום (בגלל מושב התינוק או מספר הנוסעים). הותאם ל-" + actualBack + ".");
     }
 
     var pool = participantIds.slice();
@@ -738,7 +743,7 @@
     });
     state.hasBaby = document.getElementById("ob-has-baby").checked;
     if (state.hasBaby){
-      var babyName = document.getElementById("ob-baby-name").value.trim() || "התינוק/ת";
+      var babyName = document.getElementById("ob-baby-name").value.trim() || "התינוק";
       var baby = { id: uid(), name: babyName, emoji:"🍼", colorSlot:4, isBaby:true, inRotation:false };
       state.children.push(baby);
       state.babyChild = baby.id;
@@ -831,11 +836,15 @@
     var baby = state.babyChild ? findChild(state.babyChild) : null;
     if (baby && !baby.inRotation){
       babyCard.style.display = "block";
-      document.getElementById("wizard-baby-label").textContent = "איפה יושב/ת " + baby.name + " הפעם?";
+      document.getElementById("wizard-baby-label").textContent = "איפה יושב " + baby.name + " הפעם?";
     } else {
       babyCard.style.display = "none";
     }
     refreshWizardBabySeatOptions();
+    // ברירת מחדל: התינוק יושב ליד החלון בצד ימין
+    if (baby && !baby.inRotation){
+      document.getElementById("wizard-baby-seat").value = "windowR";
+    }
 
     // duration presets
     var presetsWrap = document.getElementById("wizard-duration-presets");
@@ -855,7 +864,7 @@
   function refreshWizardBabySeatOptions(){
     var sel = document.getElementById("wizard-baby-seat");
     var current = sel.value;
-    sel.innerHTML = '<option value="">— לא נוסע/ת הפעם —</option>';
+    sel.innerHTML = '<option value="">— לא נוסע הפעם —</option>';
     SEAT_ORDER.filter(function(s){return s!=="front";}).forEach(function(s){
       var opt = document.createElement("option");
       opt.value = s; opt.textContent = SEAT_META[s].label + (SEAT_META[s].isBack ? " (מאחור)" : "");
@@ -950,7 +959,7 @@
       if (childId === "__BABY__"){
         el.classList.add("filled");
         var baby = findChild(state.babyChild);
-        el.innerHTML = '<div class="emoji">🍼</div><div class="name">'+escapeHtml(baby?baby.name:"תינוק/ת")+'</div>';
+        el.innerHTML = '<div class="emoji">🍼</div><div class="name">'+escapeHtml(baby?baby.name:"תינוק")+'</div>';
         el.appendChild(labelEl);
       } else if (childId){
         var c = findChild(childId);
@@ -975,7 +984,7 @@
     if (state.hasBaby){
       var babyOpt = document.createElement("option");
       babyOpt.value = "__BABY__";
-      babyOpt.textContent = "🍼 " + (findChild(state.babyChild)? findChild(state.babyChild).name : "תינוק/ת");
+      babyOpt.textContent = "🍼 " + (findChild(state.babyChild)? findChild(state.babyChild).name : "תינוק");
       sel.appendChild(babyOpt);
     }
     pendingTrip.participantIds.forEach(function(cid){
@@ -1123,7 +1132,7 @@
         var title = workingSegs.length>1 ? ("קטע "+(segIdx+1)) : "פרטי הנסיעה";
         var html = '<h3 style="font-size:14px; margin-bottom:8px;">'+title+'</h3>';
         html += '<div class="field"><label>דקות</label><input type="number" min="1" data-seg="'+segIdx+'" class="seg-minutes" value="'+seg.minutes+'"></div>';
-        html += '<div class="field"><label>תינוק/ת יושב/ת ב:</label><select data-seg="'+segIdx+'" class="seg-babyseat"><option value="">—</option>';
+        html += '<div class="field"><label>תינוק יושב ב:</label><select data-seg="'+segIdx+'" class="seg-babyseat"><option value="">—</option>';
         SEAT_ORDER.filter(function(s){return s!=="front";}).forEach(function(s){
           html += '<option value="'+s+'" '+(seg.babySeatId===s?"selected":"")+'>'+SEAT_META[s].label+'</option>';
         });
@@ -1134,7 +1143,7 @@
             '<div style="width:56px; font-size:12px; color:var(--text-secondary);">'+SEAT_META[seatId].label+'</div>' +
             '<select data-seg="'+segIdx+'" data-seat="'+seatId+'" class="seg-seat" style="flex:1;">';
           html += '<option value="">ריק</option>';
-          html += '<option value="__BABY__" '+(seg.assignments[seatId]==="__BABY__"?"selected":"")+'>🍼 תינוק/ת</option>';
+          html += '<option value="__BABY__" '+(seg.assignments[seatId]==="__BABY__"?"selected":"")+'>🍼 תינוק</option>';
           allKidIds.forEach(function(cid){
             var c = findChild(cid);
             if (c.isBaby) return;
@@ -1234,7 +1243,7 @@
 
     var baby = state.babyChild ? findChild(state.babyChild) : null;
     document.getElementById("set-has-baby").checked = !!state.hasBaby;
-    document.getElementById("set-baby-name").value = baby ? baby.name : "התינוק/ת";
+    document.getElementById("set-baby-name").value = baby ? baby.name : "התינוק";
     document.getElementById("set-baby-in-rotation").checked = baby ? !!baby.inRotation : false;
     document.getElementById("set-baby-name-wrap").style.display = state.hasBaby ? "block" : "none";
     document.getElementById("set-baby-rotation-wrap").style.display = state.hasBaby ? "block" : "none";
@@ -1268,7 +1277,7 @@
   document.getElementById("set-has-baby").addEventListener("change", function(e){
     state.hasBaby = e.target.checked;
     if (state.hasBaby && !state.babyChild){
-      var baby = {id: uid(), name:"התינוק/ת", emoji:"🍼", colorSlot:4, isBaby:true, inRotation:false};
+      var baby = {id: uid(), name:"התינוק", emoji:"🍼", colorSlot:4, isBaby:true, inRotation:false};
       state.children.push(baby);
       state.babyChild = baby.id;
     }
